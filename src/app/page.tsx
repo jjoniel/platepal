@@ -45,7 +45,6 @@ const quickPrefs = [
   "Nut-free",
   "Low-carb",
   "Organic",
-  "Raw",
 ];
 
 export default function PlatePalPage() {
@@ -537,7 +536,8 @@ export default function PlatePalPage() {
                 Ready to discover amazing restaurants?
               </h2>
               <p className="text-slate-600">
-                Enter your dietary preferences and location above to get started!
+                Enter your dietary preferences and location above to get
+                started!
               </p>
             </div>
           </div>
