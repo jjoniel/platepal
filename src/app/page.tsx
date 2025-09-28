@@ -3,23 +3,23 @@ import React, { useMemo, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 
 const palette = {
-  // Professional yellow-based palette
-  cream: "#FFFBEB",
-  lightYellow: "#FEF3C7",
-  golden: "#F59E0B",
-  amber: "#D97706",
-  darkYellow: "#B45309",
-  sage: "#F0FDF4",
-  mint: "#F0FDFA",
-  slate: "#F8FAFC",
-  stone: "#F5F5F4",
-  neutral: "#FAFAF9",
-  muted: "#F3F4F6",
-  accent: "#EAB308",
-  accentLight: "#FDE047",
-  text: "#1F2937",
-  textMuted: "#6B7280",
-  textLight: "#9CA3AF",
+  // PlatePal brand colors from logo
+  cream: "#fcde9c", // matches logo background
+  lightYellow: "#fcde9c", // matches logo background
+  golden: "#ffa552", // matches logo primary orange
+  amber: "#ffa552", // matches logo primary orange
+  darkYellow: "#e0863d", // matches logo secondary orange
+  sage: "#fcde9c", // matches logo background
+  mint: "#fcde9c", // matches logo background
+  slate: "#381d2a", // matches logo dark brown
+  stone: "#fcde9c", // matches logo background
+  neutral: "#fcde9c", // matches logo background
+  muted: "#e0863d", // matches logo secondary orange
+  accent: "#ffa552", // matches logo primary orange
+  accentLight: "#fcde9c", // matches logo background
+  text: "#381d2a", // matches logo dark brown
+  textMuted: "#e0863d", // matches logo secondary orange
+  textLight: "#e0863d", // matches logo secondary orange
 } as const;
 
 export type Restaurant = {
@@ -257,7 +257,7 @@ export default function PlatePalPage() {
         customizationDetails.push(`Food group priorities: ${foodGroupDetails}`);
       }
 
-      const prompt = `Find me restaurants near ${locationStr}${customizationDetails.length > 0 ? ` that match these customizations:\n${customizationDetails.join('\n')}` : ''}.\n\nFor each restaurant, suggest specific menu items and mention what to avoid or prioritize within their menu. Consider calorie counts, macro ratios, and food group preferences when making recommendations.\n\nPlease return ONLY a JSON array of restaurants in this exact format:\n[\n  {\n    "name": "Restaurant Name",\n    "address": "Street address",\n    "description": "Detailed description of the restaurant and menu recommendations",\n    "rating": "4.5/5 or similar"\n  }\n]\n\nLimit to 8 restaurants maximum. Make sure the JSON is valid and contains no other text.`;
+      const prompt = `Find me restaurants near ${locationStr}${customizationDetails.length > 0 ? ` that match these customizations:\n${customizationDetails.join('\n')}` : ''}.\n\nIMPORTANT: For each restaurant, you MUST include a realistic rating based on actual review data. Research and provide accurate ratings that reflect real customer reviews.\n\nFor each restaurant, suggest specific menu items and mention what to avoid or prioritize within their menu. Consider calorie counts, macro ratios, and food group preferences when making recommendations.\n\nPlease return ONLY a JSON array of restaurants in this exact format:\n[\n  {\n    "name": "Restaurant Name",\n    "address": "Street address",\n    "description": "Detailed description of the restaurant and menu recommendations",\n    "rating": "4.2/5"\n  }\n]\n\nRequirements:\n- Always include a rating field for every restaurant (required field)\n- Use realistic ratings between 2.0/5 and 5.0/5 based on actual review data\n- Format ratings as "X.X/5" (e.g., "4.2/5", "3.8/5")\n- Limit to 8 restaurants maximum\n- Make sure the JSON is valid and contains no other text`;
 
       const res = await fetch("/api/platepal", {
         method: "POST",
@@ -300,7 +300,7 @@ export default function PlatePalPage() {
   return (
     <div
       ref={ref}
-      className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 pt-2 pb-2"
+      className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 pt-2 pb-2"
     >
       {/* Container for responsive centering */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-8">
@@ -309,7 +309,7 @@ export default function PlatePalPage() {
           className="relative overflow-hidden rounded-2xl mb-8 flex items-end shadow-lg"
           style={{ height: headerH }}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-200 via-yellow-100 to-orange-100" />
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-200 via-amber-100 to-yellow-100" />
           <div className="relative px-6 pb-6 w-full">
             <motion.h1
               className="text-3xl sm:text-4xl font-display font-bold tracking-tight text-center text-slate-800 flex items-center justify-center"
@@ -590,23 +590,23 @@ export default function PlatePalPage() {
         {/* Results */}
         {restaurants.length > 0 && (
           <div className="mb-8">
-            <div className="flex items-center mb-6">
-              <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center mr-3">
-                <svg
-                  className="w-5 h-5 text-amber-600"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
-                </svg>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center">
+                <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center mr-3">
+                  <svg
+                    className="w-5 h-5 text-amber-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+                  </svg>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-display font-bold text-slate-800">
+                  Recommended Restaurants
+                </h2>
               </div>
-              <h2 className="text-xl sm:text-2xl font-display font-bold text-slate-800">
-                Recommended Restaurants
-              </h2>
-            </div>
-            
-            {/* Sort Dropdown */}
-            <div className="flex items-center justify-end mb-6">
+              
+              {/* Sort Dropdown */}
               <div className="flex items-center gap-2">
                 <label className="text-sm font-medium text-slate-700">Sort by:</label>
                 <select
@@ -632,22 +632,24 @@ export default function PlatePalPage() {
                   transition={{ delay: idx * 0.1 }}
                   className="bg-white rounded-2xl border border-slate-200 p-6 shadow-lg hover:shadow-xl transition-all"
                 >
-                  {r.rating && (
-                    <div className="absolute top-6 right-6 bg-amber-500 text-white rounded-full px-3 py-1 text-sm font-semibold flex items-center">
-                      <svg
-                        className="w-4 h-4 mr-1"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      {r.rating}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-lg font-bold text-slate-800">
+                        {r.name}
+                      </h3>
+                      {r.rating && (
+                        <div className="bg-amber-500 text-white rounded-full px-3 py-1 text-sm font-semibold flex items-center">
+                          <svg
+                            className="w-4 h-4 mr-1"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
+                          {r.rating}
+                        </div>
+                      )}
                     </div>
-                  )}
-                  <div className="pr-24">
-                    <h3 className="text-lg font-bold text-slate-800 mb-2">
-                      {r.name}
-                    </h3>
                     <div className="text-sm text-slate-600 mb-3 flex items-center">
                       <svg
                         className="w-4 h-4 mr-2"
