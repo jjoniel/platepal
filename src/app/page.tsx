@@ -3,19 +3,20 @@ import React, { useMemo, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 
 const palette = {
-  // Professional pastel/neutral/muted palette
-  cream: "#FAFAF9",
+  // Professional yellow-based palette
+  cream: "#FFFBEB",
+  lightYellow: "#FEF3C7",
+  golden: "#F59E0B",
+  amber: "#D97706",
+  darkYellow: "#B45309",
   sage: "#F0FDF4",
-  lavender: "#FAF5FF",
-  peach: "#FFF7ED",
   mint: "#F0FDFA",
-  rose: "#FFF1F2",
   slate: "#F8FAFC",
   stone: "#F5F5F4",
   neutral: "#FAFAF9",
   muted: "#F3F4F6",
-  accent: "#8B5CF6",
-  accentLight: "#A78BFA",
+  accent: "#EAB308",
+  accentLight: "#FDE047",
   text: "#1F2937",
   textMuted: "#6B7280",
   textLight: "#9CA3AF",
@@ -199,23 +200,23 @@ export default function PlatePalPage() {
   return (
     <div
       ref={ref}
-      className="min-h-screen bg-gradient-to-br from-slate-50 via-stone-50 to-neutral-50"
+      className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50"
     >
       {/* Container for responsive centering */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Hero */}
         <motion.div
-          className="relative overflow-hidden rounded-3xl mb-12 flex items-end shadow-xl"
+          className="relative overflow-hidden rounded-2xl mb-8 flex items-end shadow-lg"
           style={{ height: headerH }}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-violet-100 via-purple-50 to-indigo-100" />
-          <div className="relative px-8 pb-8 w-full">
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-200 via-yellow-100 to-orange-100" />
+          <div className="relative px-6 pb-6 w-full">
             <motion.h1
-              className="text-4xl sm:text-5xl font-display font-bold tracking-tight text-center text-slate-800"
+              className="text-3xl sm:text-4xl font-display font-bold tracking-tight text-center text-slate-800"
               style={{ scale: titleScale, y: titleY }}
             >
               <svg
-                className="inline-block w-10 h-10 mr-3 text-violet-600"
+                className="inline-block w-8 h-8 mr-2 text-amber-600"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -223,12 +224,12 @@ export default function PlatePalPage() {
               </svg>
               PlatePal
             </motion.h1>
-            <p className="text-center text-lg sm:text-xl mt-4 text-slate-600 font-medium">
+            <p className="text-center text-base sm:text-lg mt-3 text-slate-600 font-medium">
               Discover restaurants that match your dietary preferences
             </p>
-            <div className="mx-auto mt-6 inline-flex items-center bg-white/60 backdrop-blur-sm border border-white/40 rounded-full px-6 py-3 shadow-lg">
+            <div className="mx-auto mt-4 inline-flex items-center bg-white/70 backdrop-blur-sm border border-white/50 rounded-full px-4 py-2 shadow-md">
               <svg
-                className="w-5 h-5 mr-2 text-violet-600"
+                className="w-4 h-4 mr-2 text-amber-600"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -246,12 +247,12 @@ export default function PlatePalPage() {
         </motion.div>
 
         {/* Unified Search Box */}
-        <div className="mb-12">
-          <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-slate-200/60 shadow-2xl p-8 sm:p-10">
-            <div className="flex items-center mb-8">
-              <div className="w-12 h-12 bg-violet-100 rounded-2xl flex items-center justify-center mr-4">
+        <div className="mb-8">
+          <div className="bg-white/90 rounded-2xl border border-slate-200 shadow-lg p-6 sm:p-8">
+            <div className="flex items-center mb-6">
+              <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center mr-3">
                 <svg
-                  className="w-6 h-6 text-violet-600"
+                  className="w-5 h-5 text-amber-600"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -262,20 +263,20 @@ export default function PlatePalPage() {
                   />
                 </svg>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-display font-bold text-slate-800">
+              <h2 className="text-xl sm:text-2xl font-display font-bold text-slate-800">
                 Find Your Perfect Meal
               </h2>
             </div>
 
             {/* Dietary Preferences */}
-            <div className="mb-8">
-              <label className="block text-base font-semibold text-slate-700 mb-4">
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-slate-700 mb-3">
                 Dietary Preferences
               </label>
               <div className="relative">
                 <input
                   type="text"
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 p-5 pr-14 text-base focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all placeholder:text-slate-400"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 pr-12 text-base focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all placeholder:text-slate-400"
                   placeholder="Type or select your preferences..."
                   value={dietPrefs}
                   onChange={(e) => handleDietPrefsChange(e.target.value)}
@@ -284,7 +285,7 @@ export default function PlatePalPage() {
                     setTimeout(() => setShowSuggestions(false), 200)
                   }
                 />
-                <div className="absolute right-5 top-1/2 transform -translate-y-1/2">
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
                   <svg
                     className="w-5 h-5 text-slate-400"
                     fill="currentColor"
@@ -300,7 +301,7 @@ export default function PlatePalPage() {
 
                 {/* Auto-suggestions dropdown */}
                 {showSuggestions && filteredPrefs.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-3 rounded-2xl border border-slate-200 bg-white/95 backdrop-blur-sm shadow-xl z-10 max-h-48 overflow-y-auto">
+                  <div className="absolute top-full left-0 right-0 mt-2 rounded-xl border border-slate-200 bg-white shadow-lg z-10 max-h-40 overflow-y-auto">
                     {filteredPrefs.slice(0, 6).map((pref) => (
                       <button
                         key={pref}
@@ -308,7 +309,7 @@ export default function PlatePalPage() {
                           onTogglePref(pref);
                           setShowSuggestions(false);
                         }}
-                        className="w-full text-left px-5 py-3 hover:bg-slate-50 text-sm text-slate-700 transition-colors first:rounded-t-2xl last:rounded-b-2xl"
+                        className="w-full text-left px-4 py-3 hover:bg-slate-50 text-sm text-slate-700 transition-colors"
                       >
                         {pref}
                       </button>
@@ -319,16 +320,16 @@ export default function PlatePalPage() {
 
               {/* Active preferences */}
               {tokens.length > 0 && (
-                <div className="flex flex-wrap gap-3 mt-5">
+                <div className="flex flex-wrap gap-2 mt-4">
                   {tokens.map((token) => (
                     <span
                       key={token}
-                      className="px-4 py-2 rounded-full text-sm font-medium bg-violet-100 text-violet-800 flex items-center gap-2 shadow-sm"
+                      className="px-3 py-2 rounded-full text-sm font-medium bg-amber-100 text-amber-800 flex items-center gap-2"
                     >
                       {token}
                       <button
                         onClick={() => onTogglePref(token)}
-                        className="hover:bg-violet-200 rounded-full w-5 h-5 flex items-center justify-center transition-colors"
+                        className="hover:bg-amber-200 rounded-full w-4 h-4 flex items-center justify-center transition-colors"
                       >
                         <svg
                           className="w-3 h-3"
@@ -348,14 +349,14 @@ export default function PlatePalPage() {
               )}
 
               {/* Quick selection buttons */}
-              <div className="flex flex-wrap gap-3 mt-5">
+              <div className="flex flex-wrap gap-2 mt-4">
                 {quickPrefs.map((label) => (
                   <button
                     key={label}
                     onClick={() => onTogglePref(label)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    className={`px-3 py-2 rounded-full text-sm font-medium transition-all ${
                       isPrefActive(label)
-                        ? "bg-violet-500 text-white shadow-md"
+                        ? "bg-amber-500 text-white shadow-md"
                         : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                     }`}
                   >
@@ -366,14 +367,14 @@ export default function PlatePalPage() {
             </div>
 
             {/* Location */}
-            <div className="mb-8">
-              <label className="block text-base font-semibold text-slate-700 mb-4">
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-slate-700 mb-3">
                 Location
               </label>
-              <div className="flex gap-4">
+              <div className="flex gap-3">
                 <input
                   type="text"
-                  className="flex-1 rounded-2xl border border-slate-200 bg-slate-50/50 p-5 text-base focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all placeholder:text-slate-400"
+                  className="flex-1 rounded-xl border border-slate-200 bg-slate-50 p-4 text-base focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all placeholder:text-slate-400"
                   placeholder="Enter zipcode (e.g., 10001)"
                   value={zipcode}
                   onChange={(e) => setZipcode(e.target.value)}
@@ -381,17 +382,17 @@ export default function PlatePalPage() {
                 <button
                   onClick={getLocation}
                   disabled={locLoading}
-                  className={`w-16 h-16 rounded-2xl border-2 flex items-center justify-center transition-all hover:scale-105 disabled:opacity-60 shadow-lg ${
+                  className={`w-14 h-14 rounded-xl border-2 flex items-center justify-center transition-all hover:scale-105 disabled:opacity-60 ${
                     location
-                      ? "bg-violet-500 border-violet-600 text-white"
+                      ? "bg-amber-500 border-amber-600 text-white"
                       : "bg-slate-100 border-slate-200 text-slate-600"
                   }`}
                 >
                   {locLoading ? (
-                    <div className="w-6 h-6 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
                   ) : (
                     <svg
-                      className="w-6 h-6"
+                      className="w-5 h-5"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
@@ -413,13 +414,13 @@ export default function PlatePalPage() {
                 disabled={
                   loading || (!location && !zipcode.trim()) || !dietPrefs.trim()
                 }
-                className="w-24 h-24 rounded-full bg-gradient-to-r from-violet-500 to-purple-600 text-white flex items-center justify-center transition-all hover:scale-105 disabled:opacity-60 shadow-xl hover:shadow-2xl"
+                className="w-20 h-20 rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 text-white flex items-center justify-center transition-all hover:scale-105 disabled:opacity-60 shadow-lg hover:shadow-xl"
               >
                 {loading ? (
-                  <div className="w-10 h-10 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <svg
-                    className="w-10 h-10"
+                    className="w-8 h-8"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -437,32 +438,32 @@ export default function PlatePalPage() {
 
         {/* Results */}
         {restaurants.length > 0 && (
-          <div className="mb-12">
-            <div className="flex items-center mb-8">
-              <div className="w-12 h-12 bg-violet-100 rounded-2xl flex items-center justify-center mr-4">
+          <div className="mb-8">
+            <div className="flex items-center mb-6">
+              <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center mr-3">
                 <svg
-                  className="w-6 h-6 text-violet-600"
+                  className="w-5 h-5 text-amber-600"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
                   <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
                 </svg>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-display font-bold text-slate-800">
+              <h2 className="text-xl sm:text-2xl font-display font-bold text-slate-800">
                 Recommended Restaurants
               </h2>
             </div>
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-1">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
               {restaurants.map((r, idx) => (
                 <motion.div
                   key={idx}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.1 }}
-                  className="bg-white/80 backdrop-blur-sm rounded-3xl border border-slate-200/60 p-8 shadow-xl hover:shadow-2xl transition-all"
+                  className="bg-white rounded-2xl border border-slate-200 p-6 shadow-lg hover:shadow-xl transition-all"
                 >
                   {r.rating && (
-                    <div className="absolute top-8 right-8 bg-violet-500 text-white rounded-full px-4 py-2 text-sm font-semibold flex items-center shadow-lg">
+                    <div className="absolute top-6 right-6 bg-amber-500 text-white rounded-full px-3 py-1 text-sm font-semibold flex items-center">
                       <svg
                         className="w-4 h-4 mr-1"
                         fill="currentColor"
@@ -473,11 +474,11 @@ export default function PlatePalPage() {
                       {r.rating}
                     </div>
                   )}
-                  <div className="pr-32">
-                    <h3 className="text-xl font-bold text-slate-800 mb-3">
+                  <div className="pr-24">
+                    <h3 className="text-lg font-bold text-slate-800 mb-2">
                       {r.name}
                     </h3>
-                    <div className="text-sm text-slate-600 mb-4 flex items-center">
+                    <div className="text-sm text-slate-600 mb-3 flex items-center">
                       <svg
                         className="w-4 h-4 mr-2"
                         fill="currentColor"
@@ -491,17 +492,17 @@ export default function PlatePalPage() {
                       </svg>
                       {r.address}
                     </div>
-                    <p className="text-base text-slate-700 leading-relaxed">
+                    <p className="text-sm text-slate-700 leading-relaxed">
                       {r.description}
                     </p>
                   </div>
-                  <div className="mt-8 flex justify-end">
+                  <div className="mt-6 flex justify-end">
                     <button
                       onClick={() => openInMaps(r)}
-                      className="px-8 py-4 bg-violet-500 text-white rounded-2xl font-semibold text-base transition-all hover:scale-105 hover:bg-violet-600 shadow-lg flex items-center"
+                      className="px-6 py-3 bg-amber-500 text-white rounded-xl font-semibold text-sm transition-all hover:scale-105 hover:bg-amber-600 shadow-md flex items-center"
                     >
                       <svg
-                        className="w-5 h-5 mr-2"
+                        className="w-4 h-4 mr-2"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                       >
@@ -521,38 +522,37 @@ export default function PlatePalPage() {
         )}
 
         {!loading && restaurants.length === 0 && (
-          <div className="mb-12">
-            <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-slate-200/60 p-10 text-center shadow-xl">
-              <div className="w-20 h-20 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div className="mb-8">
+            <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center shadow-lg">
+              <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
-                  className="w-10 h-10 text-violet-600"
+                  className="w-8 h-8 text-amber-600"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
                   <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-display font-bold text-slate-800 mb-3">
+              <h2 className="text-xl font-display font-bold text-slate-800 mb-2">
                 Ready to discover amazing restaurants?
               </h2>
-              <p className="text-slate-600 text-lg">
-                Enter your dietary preferences and location above to get
-                started!
+              <p className="text-slate-600">
+                Enter your dietary preferences and location above to get started!
               </p>
             </div>
           </div>
         )}
 
         {(loading || refreshing) && (
-          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm grid place-items-center pointer-events-none z-50">
+          <div className="fixed inset-0 bg-black/20 grid place-items-center pointer-events-none z-50">
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="bg-white/95 backdrop-blur-sm rounded-3xl p-10 shadow-2xl"
+              className="bg-white rounded-2xl p-8 shadow-xl"
             >
               <div className="text-center">
-                <div className="w-16 h-16 border-4 border-violet-200 border-t-violet-500 rounded-full animate-spin mx-auto mb-6"></div>
-                <div className="font-display font-semibold text-xl text-slate-800">
+                <div className="w-12 h-12 border-4 border-amber-200 border-t-amber-500 rounded-full animate-spin mx-auto mb-4"></div>
+                <div className="font-display font-semibold text-lg text-slate-800">
                   Finding great places for you…
                 </div>
               </div>
