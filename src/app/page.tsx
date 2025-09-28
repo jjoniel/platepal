@@ -58,7 +58,24 @@ export default function PlatePalPage() {
   const [loading, setLoading] = useState(false);
   const [locLoading, setLocLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [error, setError] = useState("");
+  const [sortBy, setSortBy] = useState("relevance");
+  
+  // New customization states
+  const [calorieRange, setCalorieRange] = useState({ min: "", max: "" });
+  const [macroPreferences, setMacroPreferences] = useState({
+    carbs: "", // "minimize", "balanced", "maximize", ""
+    protein: "",
+    fat: ""
+  });
+  const [foodGroupPriorities, setFoodGroupPriorities] = useState({
+    vegetables: "", // "avoid", "neutral", "prioritize", ""
+    fruits: "",
+    grains: "",
+    dairy: "",
+    meat: "",
+    seafood: ""
+  });
 
   // Header animations based on scroll
   const ref = useRef<HTMLDivElement | null>(null);
@@ -82,6 +99,60 @@ export default function PlatePalPage() {
   const isPrefActive = (label: string) =>
     tokens.map((t) => t.toLowerCase()).includes(label.toLowerCase());
 
+  // Helper functions for customization
+  const hasAnyCustomization = () => {
+    return (
+      calorieRange.min !== "" ||
+      calorieRange.max !== "" ||
+      Object.values(macroPreferences).some(pref => pref !== "") ||
+      Object.values(foodGroupPriorities).some(priority => priority !== "")
+    );
+  };
+
+  const updateMacroPreference = (macro: keyof typeof macroPreferences, value: string) => {
+    setMacroPreferences(prev => ({ ...prev, [macro]: value }));
+  };
+
+  const updateFoodGroupPriority = (foodGroup: keyof typeof foodGroupPriorities, value: string) => {
+    setFoodGroupPriorities(prev => ({ ...prev, [foodGroup]: value }));
+  };
+
+  // Sorting logic
+  const sortRestaurants = (restaurants: Restaurant[]) => {
+    const sorted = [...restaurants];
+    
+    switch (sortBy) {
+      case "distance":
+        // Sort alphabetically by name as a proxy for distance (since we don't have actual distance data)
+        return sorted.sort((a, b) => a.name.localeCompare(b.name));
+      
+      case "rating":
+        return sorted.sort((a, b) => {
+          const ratingA = parseFloat(a.rating?.split('/')[0] || '0');
+          const ratingB = parseFloat(b.rating?.split('/')[0] || '0');
+          return ratingB - ratingA; // Highest first
+        });
+      
+      case "diet_match":
+        // Sort by description length (longer descriptions usually mean better matches)
+        return sorted.sort((a, b) => b.description.length - a.description.length);
+      
+      case "price_low_high":
+        // Sort alphabetically by name as a proxy for price (since we don't have actual price data)
+        return sorted.sort((a, b) => a.name.localeCompare(b.name));
+      
+      case "price_high_low":
+        // Sort alphabetically by name as a proxy for price (since we don't have actual price data)
+        return sorted.sort((a, b) => b.name.localeCompare(a.name));
+      
+      case "relevance":
+      default:
+        return sorted; // Keep original order
+    }
+  };
+
+  const sortedRestaurants = useMemo(() => sortRestaurants(restaurants), [restaurants, sortBy]);
+
   const onTogglePref = (label: string) => {
     const lower = label.toLowerCase();
     if (isPrefActive(label)) {
@@ -91,16 +162,6 @@ export default function PlatePalPage() {
     }
   };
 
-  const handleDietPrefsChange = (value: string) => {
-    setDietPrefs(value);
-    setShowSuggestions(value.length > 0);
-  };
-
-  const filteredPrefs = quickPrefs.filter(
-    (pref) =>
-      pref.toLowerCase().includes(dietPrefs.toLowerCase()) &&
-      !isPrefActive(pref)
-  );
 
   const openInMaps = (r: Restaurant) => {
     const query = encodeURIComponent(`${r.name} ${r.address ?? ""}`.trim());
@@ -148,8 +209,8 @@ export default function PlatePalPage() {
   };
 
   const findRestaurants = async () => {
-    if (!dietPrefs.trim()) {
-      console.error("Please enter your dietary preferences");
+    if (!hasAnyCustomization()) {
+      console.error("Please enter at least one customization");
       return;
     }
     if (!location && !zipcode.trim()) {
@@ -158,12 +219,45 @@ export default function PlatePalPage() {
     }
 
     setLoading(true);
+    setError("");
     try {
       const locationStr = location
         ? `latitude ${location.latitude}, longitude ${location.longitude}`
         : `zipcode ${zipcode}`;
 
-      const prompt = `Find me restaurants near ${locationStr} that match these dietary preferences: ${dietPrefs}.\n\nPlease return ONLY a JSON array of restaurants in this exact format:\n[\n  {\n    "name": "Restaurant Name",\n    "address": "Street address",\n    "description": "Brief description of why it matches the dietary preferences",\n    "rating": "4.5/5 or similar"\n  }\n]\n\nLimit to 8 restaurants maximum. Make sure the JSON is valid and contains no other text.`;
+      // Build comprehensive customization details
+      let customizationDetails = [];
+      
+      if (dietPrefs.trim()) {
+        customizationDetails.push(`Dietary preferences: ${dietPrefs}`);
+      }
+      
+      if (calorieRange.min || calorieRange.max) {
+        const calorieStr = calorieRange.min && calorieRange.max 
+          ? `${calorieRange.min}-${calorieRange.max} calories`
+          : calorieRange.min 
+          ? `at least ${calorieRange.min} calories`
+          : `maximum ${calorieRange.max} calories`;
+        customizationDetails.push(`Calorie range: ${calorieStr}`);
+      }
+
+      const macroDetails = Object.entries(macroPreferences)
+        .filter(([_, value]) => value !== "")
+        .map(([macro, value]) => `${value} ${macro}`)
+        .join(", ");
+      if (macroDetails) {
+        customizationDetails.push(`Macro preferences: ${macroDetails}`);
+      }
+
+      const foodGroupDetails = Object.entries(foodGroupPriorities)
+        .filter(([_, value]) => value !== "")
+        .map(([group, value]) => `${value} ${group}`)
+        .join(", ");
+      if (foodGroupDetails) {
+        customizationDetails.push(`Food group priorities: ${foodGroupDetails}`);
+      }
+
+      const prompt = `Find me restaurants near ${locationStr}${customizationDetails.length > 0 ? ` that match these customizations:\n${customizationDetails.join('\n')}` : ''}.\n\nFor each restaurant, suggest specific menu items and mention what to avoid or prioritize within their menu. Consider calorie counts, macro ratios, and food group preferences when making recommendations.\n\nPlease return ONLY a JSON array of restaurants in this exact format:\n[\n  {\n    "name": "Restaurant Name",\n    "address": "Street address",\n    "description": "Detailed description of the restaurant and menu recommendations",\n    "rating": "4.5/5 or similar"\n  }\n]\n\nLimit to 8 restaurants maximum. Make sure the JSON is valid and contains no other text.`;
 
       const res = await fetch("/api/platepal", {
         method: "POST",
@@ -181,6 +275,13 @@ export default function PlatePalPage() {
       setRestaurants(parsed);
     } catch (e: any) {
       console.error(e);
+      if (e.message?.includes("500")) {
+        setError("Server error: Please check if the Gemini API key is configured. Contact support if the issue persists.");
+      } else if (e.message?.includes("API key not configured")) {
+        setError("API key not configured. Please add your Gemini API key to the .env.local file.");
+      } else {
+        setError(`Error: ${e.message || "Something went wrong. Please try again."}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -199,10 +300,10 @@ export default function PlatePalPage() {
   return (
     <div
       ref={ref}
-      className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50"
+      className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 pt-2 pb-2"
     >
       {/* Container for responsive centering */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-8">
         {/* Hero */}
         <motion.div
           className="relative overflow-hidden rounded-2xl mb-8 flex items-end shadow-lg"
@@ -211,36 +312,36 @@ export default function PlatePalPage() {
           <div className="absolute inset-0 bg-gradient-to-br from-amber-200 via-yellow-100 to-orange-100" />
           <div className="relative px-6 pb-6 w-full">
             <motion.h1
-              className="text-3xl sm:text-4xl font-display font-bold tracking-tight text-center text-slate-800"
+              className="text-3xl sm:text-4xl font-display font-bold tracking-tight text-center text-slate-800 flex items-center justify-center"
               style={{ scale: titleScale, y: titleY }}
             >
-              <svg
-                className="inline-block w-8 h-8 mr-2 text-amber-600"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
-              </svg>
+              <img
+                src="/platepal-logo.svg"
+                alt="PlatePal Logo"
+                className="w-10 h-10 mr-3"
+              />
               PlatePal
             </motion.h1>
             <p className="text-center text-base sm:text-lg mt-3 text-slate-600 font-medium">
               Discover restaurants that match your dietary preferences
             </p>
-            <div className="mx-auto mt-4 inline-flex items-center bg-white/70 backdrop-blur-sm border border-white/50 rounded-full px-4 py-2 shadow-md">
-              <svg
-                className="w-4 h-4 mr-2 text-amber-600"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span className="text-sm font-semibold text-slate-700">
-                Powered by AI
-              </span>
+            <div className="flex justify-center mt-4">
+              <div className="inline-flex items-center bg-white/70 backdrop-blur-sm border border-white/50 rounded-full px-4 py-2 shadow-md hover:bg-white/90 hover:shadow-lg transition-all duration-300 group">
+                <svg
+                  className="w-4 h-4 mr-2 text-amber-600 group-hover:text-amber-500 group-hover:drop-shadow-[0_0_8px_rgba(245,158,11,0.6)] transition-all duration-300"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="text-sm font-semibold text-slate-700 group-hover:text-slate-800 group-hover:drop-shadow-[0_0_6px_rgba(71,85,105,0.4)] transition-all duration-300">
+                  Powered by AI
+                </span>
+              </div>
             </div>
           </div>
         </motion.div>
@@ -275,14 +376,10 @@ export default function PlatePalPage() {
               <div className="relative">
                 <input
                   type="text"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 pr-12 text-base focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all placeholder:text-slate-400"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-4 pr-12 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all placeholder:text-slate-400"
                   placeholder="Type or select your preferences..."
                   value={dietPrefs}
-                  onChange={(e) => handleDietPrefsChange(e.target.value)}
-                  onFocus={() => setShowSuggestions(true)}
-                  onBlur={() =>
-                    setTimeout(() => setShowSuggestions(false), 200)
-                  }
+                  onChange={(e) => setDietPrefs(e.target.value)}
                 />
                 <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
                   <svg
@@ -298,54 +395,8 @@ export default function PlatePalPage() {
                   </svg>
                 </div>
 
-                {/* Auto-suggestions dropdown */}
-                {showSuggestions && filteredPrefs.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-2 rounded-xl border border-slate-200 bg-white shadow-lg z-10 max-h-40 overflow-y-auto">
-                    {filteredPrefs.slice(0, 6).map((pref) => (
-                      <button
-                        key={pref}
-                        onClick={() => {
-                          onTogglePref(pref);
-                          setShowSuggestions(false);
-                        }}
-                        className="w-full text-left px-4 py-3 hover:bg-slate-50 text-sm text-slate-700 transition-colors"
-                      >
-                        {pref}
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
 
-              {/* Active preferences */}
-              {tokens.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-4">
-                  {tokens.map((token) => (
-                    <span
-                      key={token}
-                      className="px-3 py-2 rounded-full text-sm font-medium bg-amber-100 text-amber-800 flex items-center gap-2"
-                    >
-                      {token}
-                      <button
-                        onClick={() => onTogglePref(token)}
-                        className="hover:bg-amber-200 rounded-full w-4 h-4 flex items-center justify-center transition-colors"
-                      >
-                        <svg
-                          className="w-3 h-3"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
 
               {/* Quick selection buttons */}
               <div className="flex flex-wrap gap-2 mt-4">
@@ -373,7 +424,7 @@ export default function PlatePalPage() {
               <div className="flex gap-3">
                 <input
                   type="text"
-                  className="flex-1 rounded-xl border border-slate-200 bg-slate-50 p-4 text-base focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all placeholder:text-slate-400"
+                  className="flex-1 rounded-xl border border-slate-200 bg-slate-50 p-4 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all placeholder:text-slate-400"
                   placeholder="Enter zipcode (e.g., 10001)"
                   value={zipcode}
                   onChange={(e) => setZipcode(e.target.value)}
@@ -406,12 +457,84 @@ export default function PlatePalPage() {
               </div>
             </div>
 
+            {/* Calorie Range */}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-slate-700 mb-3">
+                Calorie Range
+              </label>
+              <div className="flex gap-3">
+                <input
+                  type="number"
+                  className="flex-1 rounded-xl border border-slate-200 bg-slate-50 p-4 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all placeholder:text-slate-400"
+                  placeholder="Min calories"
+                  value={calorieRange.min}
+                  onChange={(e) => setCalorieRange(prev => ({ ...prev, min: e.target.value }))}
+                />
+                <span className="flex items-center text-slate-500 font-medium">to</span>
+                <input
+                  type="number"
+                  className="flex-1 rounded-xl border border-slate-200 bg-slate-50 p-4 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all placeholder:text-slate-400"
+                  placeholder="Max calories"
+                  value={calorieRange.max}
+                  onChange={(e) => setCalorieRange(prev => ({ ...prev, max: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            {/* Macro Preferences */}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-slate-700 mb-3">
+                Macro Preferences
+              </label>
+              <div className="grid grid-cols-3 gap-4">
+                {Object.entries(macroPreferences).map(([macro, value]) => (
+                  <div key={macro} className="space-y-2">
+                    <label className="text-xs font-medium text-slate-600 capitalize">{macro}</label>
+                    <select
+                      value={value}
+                      onChange={(e) => updateMacroPreference(macro as keyof typeof macroPreferences, e.target.value)}
+                      className={`w-full rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent ${value === "" ? "text-slate-400" : "text-slate-900"}`}
+                    >
+                      <option value="">No selection</option>
+                      <option value="minimize">Minimize</option>
+                      <option value="balanced">Balanced</option>
+                      <option value="maximize">Maximize</option>
+                    </select>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Food Group Priorities */}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-slate-700 mb-3">
+                Food Group Priorities
+              </label>
+              <div className="grid grid-cols-2 gap-4">
+                {Object.entries(foodGroupPriorities).map(([group, priority]) => (
+                  <div key={group} className="space-y-2">
+                    <label className="text-xs font-medium text-slate-600 capitalize">{group}</label>
+                    <select
+                      value={priority}
+                      onChange={(e) => updateFoodGroupPriority(group as keyof typeof foodGroupPriorities, e.target.value)}
+                      className={`w-full rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent ${priority === "" ? "text-slate-400" : "text-slate-900"}`}
+                    >
+                      <option value="">No selection</option>
+                      <option value="avoid">Avoid</option>
+                      <option value="neutral">Neutral</option>
+                      <option value="prioritize">Prioritize</option>
+                    </select>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Search Button */}
             <div className="flex justify-center">
               <button
                 onClick={findRestaurants}
                 disabled={
-                  loading || (!location && !zipcode.trim()) || !dietPrefs.trim()
+                  loading || (!location && !zipcode.trim()) || !hasAnyCustomization()
                 }
                 className="w-20 h-20 rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 text-white flex items-center justify-center transition-all hover:scale-105 disabled:opacity-60 shadow-lg hover:shadow-xl"
               >
@@ -435,6 +558,35 @@ export default function PlatePalPage() {
           </div>
         </div>
 
+        {/* Error Display */}
+        {error && (
+          <div className="mb-8">
+            <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center shadow-lg">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg
+                  className="w-6 h-6 text-red-600"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-red-800 mb-2">Error</h3>
+              <p className="text-red-700">{error}</p>
+              <button
+                onClick={() => setError("")}
+                className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Results */}
         {restaurants.length > 0 && (
           <div className="mb-8">
@@ -452,8 +604,27 @@ export default function PlatePalPage() {
                 Recommended Restaurants
               </h2>
             </div>
+            
+            {/* Sort Dropdown */}
+            <div className="flex items-center justify-end mb-6">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-slate-700">Sort by:</label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                >
+                  <option value="relevance">Most Relevant</option>
+                  <option value="rating">Highest Rated</option>
+                  <option value="diet_match">Best Diet Match</option>
+                  <option value="distance">Closest Distance</option>
+                  <option value="price_low_high">Price: Low to High</option>
+                  <option value="price_high_low">Price: High to Low</option>
+                </select>
+              </div>
+            </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
-              {restaurants.map((r, idx) => (
+              {sortedRestaurants.map((r, idx) => (
                 <motion.div
                   key={idx}
                   initial={{ opacity: 0, y: 20 }}
@@ -491,9 +662,14 @@ export default function PlatePalPage() {
                       </svg>
                       {r.address}
                     </div>
-                    <p className="text-sm text-slate-700 leading-relaxed">
-                      {r.description}
-                    </p>
+                    <div className="text-sm text-slate-700 leading-relaxed space-y-2">
+                      {r.description.split('. ').map((sentence, idx) => (
+                        <p key={idx} className="mb-2 last:mb-0">
+                          {sentence.trim()}
+                          {!sentence.endsWith('.') && idx < r.description.split('. ').length - 1 && '.'}
+                        </p>
+                      ))}
+                    </div>
                   </div>
                   <div className="mt-6 flex justify-end">
                     <button
