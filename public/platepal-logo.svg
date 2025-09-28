@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 333.73 334.76">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke-width: 6px;
+      }
+
+      .cls-1, .cls-2 {
+        stroke: #381d2a;
+      }
+
+      .cls-1, .cls-2, .cls-3 {
+        stroke-miterlimit: 10;
+      }
+
+      .cls-2 {
+        stroke-width: 7px;
+      }
+
+      .cls-2, .cls-4 {
+        fill: #ffa552;
+      }
+
+      .cls-5 {
+        fill: #e0863d;
+      }
+
+      .cls-3 {
+        opacity: .18;
+        stroke: #000;
+        stroke-width: 4px;
+      }
+
+      .cls-6 {
+        fill: #381d2a;
+      }
+    </style>
+  </defs>
+  <g id="Layer_1-2" data-name="Layer 1">
+    <path class="cls-3" d="M322.15,172.68c0,88.41-71.67,160.07-160.07,160.07S2,263.76,2,172.68,73.67,12.61,162.07,12.61s160.07,71.67,160.07,160.07Z"/>
+    <circle class="cls-2" cx="170.16" cy="163.57" r="160.07"/>
+    <circle class="cls-4" cx="170.16" cy="167.07" r="128.83"/>
+    <path class="cls-5" d="M60.39,100.9c46.1-46.94,119.26-52.41,169.01-15.29,54.34,40.54,67.11,121.71,24.63,180.06,3.93-3.92,57.49-59.23,41.27-129.29-9.68-41.81-38.95-66.13-43.93-70.16-6.08-4.91-33.47-26.09-72.92-27.98-70.54-3.38-114.8,57.98-118.06,62.66Z"/>
+    <circle class="cls-1" cx="170.16" cy="167.07" r="128.83"/>
+    <rect class="cls-6" x="129.17" y="139.34" width="23.69" height="66.68" rx="8.52" ry="8.52" transform="translate(117.23 -48.99) rotate(33.11)"/>
+    <rect class="cls-6" x="175.09" y="169.29" width="23.69" height="66.68" rx="8.52" ry="8.52" transform="translate(141.05 -69.21) rotate(33.11)"/>
+  </g>
+</svg>
